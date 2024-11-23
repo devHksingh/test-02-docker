@@ -40,7 +40,7 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
 }
 
 const loginUser = async (req: Request, res: Response, next: NextFunction) => {
-    const { email, password } = req.body
+    const { email, password, name } = req.body
     if (!password || !email) {
         res.status(400).json({
             message: 'All fields are required!!'
@@ -48,13 +48,23 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     try {
-        const user = await userModel.findOne({
-            email
-        })
+        // const user = await userModel.findOne({
+        //     email
+        // })
+        const user = await userModel.findOneAndUpdate(
+            { $or: [{ name }, { email }] },
+            {
+                $set: {
+                    isLoggin: true
+                },
+            },
+            { new: true },
+
+        )
         if (user) {
             if (user.password === password) {
                 user.isLoggin = true
-                res.status(200).json({ message: `you are login successfully with email id is ${user.email}` })
+                res.status(200).json({ message: `you are login successfully with email id is ${user.email} and id is ${user.id}` })
             }
         }
     } catch (error) {
@@ -64,4 +74,26 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
     }
 }
 
-export { createUser, loginUser }
+const logoutUser = async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.params.userId
+    try {
+        const user = await userModel.findByIdAndUpdate(
+            userId,
+            {
+                $set: {
+                    isLoggin: false
+                },
+            },
+            {
+                new: true
+            }
+        ).select("-password")
+        if (user) {
+            res.status(201).json({ user })
+        }
+    } catch (error) {
+        res.status(500).json({ message: "Error while logout user" })
+    }
+}
+
+export { createUser, loginUser, logoutUser }
