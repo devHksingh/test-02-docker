@@ -39,4 +39,29 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
     }
 }
 
-export {createUser}
+const loginUser = async (req: Request, res: Response, next: NextFunction) => {
+    const { email, password } = req.body
+    if (!password || !email) {
+        res.status(400).json({
+            message: 'All fields are required!!'
+        })
+    }
+
+    try {
+        const user = await userModel.findOne({
+            email
+        })
+        if (user) {
+            if (user.password === password) {
+                user.isLoggin = true
+                res.status(200).json({ message: `you are login successfully with email id is ${user.email}` })
+            }
+        }
+    } catch (error) {
+        res.status(400).json({
+            message: 'All fields are required!!'
+        })
+    }
+}
+
+export { createUser, loginUser }
