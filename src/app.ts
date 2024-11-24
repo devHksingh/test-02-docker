@@ -1,9 +1,10 @@
 import express, { Request, Response, NextFunction } from 'express'
 import userRouter from './users/userRoute'
+// import userRouter from './users/userRoute'
 
 
 const app = express()
-const port = process.env.PORT || 3301
+
 
 app.use(express.json())
 
@@ -17,6 +18,6 @@ app.get('/', (req: Request, res: Response) => {
 app.use('/api/v1/users', userRouter)
 
 
-app.listen(port, () => { console.log(`Sever is running at Port ${port}`) })
 
-// export default app
+
+export default app
